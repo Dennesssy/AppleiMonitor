@@ -1,12 +1,12 @@
-# App Monitor
+# AppleiMonitor
 
-App Monitor is a local-first macOS utility for understanding application usage, storage, cleanup opportunities, update status, and uninstall impact from one native SwiftUI dashboard.
+AppleiMonitor is a local-first macOS utility for understanding application usage, storage, cleanup opportunities, update status, and uninstall impact from one native SwiftUI dashboard.
 
 The app is built as a Swift Package executable with a lightweight SQLite-backed core. It runs as a standard macOS app with an optional menu bar presence.
 
 ## Screenshots
 
-![App Monitor overview dashboard](docs/assets/app-monitor-overview.png)
+![AppleiMonitor overview dashboard](docs/assets/app-monitor-overview.png)
 
 | Usage Trends | Activity Timeline |
 | --- | --- |
@@ -36,14 +36,14 @@ The app is built as a Swift Package executable with a lightweight SQLite-backed 
 
 ## How It Compares
 
-App Monitor is meant to sit between usage trackers, cleanup tools, update checkers, and uninstall helpers:
+AppleiMonitor is meant to sit between usage trackers, cleanup tools, update checkers, and uninstall helpers:
 
 - Compared with pure usage trackers, it keeps local foreground usage history alongside app storage and health context.
 - Compared with cleaner apps, it defaults to review and quarantine instead of permanent deletion.
 - Compared with uninstall tools, it shows an uninstall plan and affected paths before moving selected items to Trash.
 - Compared with update checkers, it combines Mac App Store, Homebrew, Apple software update, and Sparkle/direct-download signals in one local view.
 
-This category is crowded, so App Monitor's niche is the combination: usage history explains whether an app still matters, storage scans show what it owns, warnings flag review-worthy risk, updates show maintenance status, and quarantine-first cleanup keeps changes reversible. It is not trying to replace dedicated package managers, malware scanners, or deep disk visualizers. The goal is a native, local-first dashboard that makes app-related usage, storage, warnings, cleanup candidates, updates, and uninstall impact easier to inspect together.
+This category is crowded, so AppleiMonitor's niche is the combination: usage history explains whether an app still matters, storage scans show what it owns, warnings flag review-worthy risk, updates show maintenance status, and quarantine-first cleanup keeps changes reversible. It is not trying to replace dedicated package managers, malware scanners, or deep disk visualizers. The goal is a native, local-first dashboard that makes app-related usage, storage, warnings, cleanup candidates, updates, and uninstall impact easier to inspect together.
 
 ## Requirements
 
@@ -85,7 +85,7 @@ Build a runnable `.app` bundle:
 Open the packaged app:
 
 ```bash
-open "build/App Monitor.app"
+open "build/AppleiMonitor.app"
 ```
 
 Run the full local check used by this repo:
@@ -104,7 +104,7 @@ Some macOS app behaviors, including bundle identity, icon resources, menu bar be
 
 ## Packaging And Releasing
 
-App Monitor's packaged app includes a GitHub-hosted appcast URL. Release packages include a zip, a branded drag-to-Applications DMG, SHA-256 checksums, and an `appcast.xml` file for update discovery.
+AppleiMonitor's packaged app includes a GitHub-hosted appcast URL. Release packages include a zip, a branded drag-to-Applications DMG, SHA-256 checksums, and an `appcast.xml` file for update discovery.
 
 For local packaging:
 
@@ -123,13 +123,13 @@ The unsigned/ad-hoc local package is useful for development. Public distribution
 
 ## Privacy
 
-App Monitor is designed to run locally. It records app inventory, usage, storage scan, cleanup, uninstall, update, and settings data in a local SQLite database under `~/Library/Application Support/App Monitor/`.
+AppleiMonitor is designed to run locally. It records app inventory, usage, storage scan, cleanup, uninstall, update, and settings data in a local SQLite database under `~/Library/Application Support/AppleiMonitor/`.
 
 It does not include telemetry, accounts, or a hosted backend. Optional update checks may contact third-party update sources or run local update tools such as Homebrew, `mas`, Apple `softwareupdate`, or app-provided Sparkle feeds. See [PRIVACY.md](PRIVACY.md) for details.
 
 ## Safety Notes
 
-App Monitor can inspect local app-related storage and can move selected files to quarantine or Trash. Cleanup candidates are shown as a quarantine review: preview the exact path, queue only the items you approve, move them to App Monitor quarantine, and restore from History while the quarantined item remains available. Review cleanup and uninstall plans before applying them, especially for containers, preferences, Application Support data, and group containers that may contain user data.
+AppleiMonitor can inspect local app-related storage and can move selected files to quarantine or Trash. Cleanup candidates are shown as a quarantine review: preview the exact path, queue only the items you approve, move them to AppleiMonitor quarantine, and restore from History while the quarantined item remains available. Review cleanup and uninstall plans before applying them, especially for containers, preferences, Application Support data, and group containers that may contain user data.
 
 Update installs may require administrator authorization or third-party package manager behavior outside this project.
 
@@ -143,4 +143,4 @@ Update installs may require administrator authorization or third-party package m
 
 ## License
 
-App Monitor is released under the MIT License. See [LICENSE](LICENSE).
+AppleiMonitor is released under the MIT License. See [LICENSE](LICENSE).

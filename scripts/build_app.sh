@@ -11,10 +11,10 @@ SIGN_ENTITLEMENTS="${APP_MONITOR_ENTITLEMENTS:-}"
 HARDENED_RUNTIME="${APP_MONITOR_HARDENED_RUNTIME:-auto}"
 TIMESTAMP_SIGNATURE="${APP_MONITOR_TIMESTAMP_SIGNATURE:-auto}"
 PRODUCT_DIR="$ROOT_DIR/build"
-APP_NAME="App Monitor"
+APP_NAME="AppleiMonitor"
 APP_DIR="$PRODUCT_DIR/$APP_NAME.app"
 BINARY_NAME="AppMonitor"
-ASKPASS_BINARY_NAME="AppMonitorAskpass"
+ASKPASS_BINARY_NAME="AppleiMonitorAskpass"
 
 xml_escape() {
   local value="$1"
@@ -72,17 +72,17 @@ cat > "$APP_DIR/Contents/Info.plist" <<PLIST
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
   <key>CFBundleExecutable</key>
-  <string>App Monitor</string>
+  <string>AppleiMonitor</string>
   <key>CFBundleIconFile</key>
   <string>AppMonitorIcon</string>
   <key>CFBundleIdentifier</key>
-  <string>com.jacob.appmonitor</string>
+  <string>com.dennesssy.AppleiMonitor</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
-  <string>App Monitor</string>
+  <string>AppleiMonitor</string>
   <key>CFBundleDisplayName</key>
-  <string>App Monitor</string>
+  <string>AppleiMonitor</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
@@ -98,17 +98,17 @@ cat > "$APP_DIR/Contents/Info.plist" <<PLIST
   <key>SUFeedURL</key>
   <string>${APPCAST_URL_XML}</string>
   <key>NSAppleEventsUsageDescription</key>
-  <string>App Monitor uses macOS authorization only when you request an update action that needs administrator approval.</string>
+  <string>AppleiMonitor uses macOS authorization only when you request an update action that needs administrator approval.</string>
   <key>NSDesktopFolderUsageDescription</key>
-  <string>App Monitor checks app-related files only when you request storage, cleanup, or uninstall analysis.</string>
+  <string>AppleiMonitor checks app-related files only when you request storage, cleanup, or uninstall analysis.</string>
   <key>NSDocumentsFolderUsageDescription</key>
-  <string>App Monitor checks app-related files only when you request storage, cleanup, or uninstall analysis.</string>
+  <string>AppleiMonitor checks app-related files only when you request storage, cleanup, or uninstall analysis.</string>
   <key>NSDownloadsFolderUsageDescription</key>
-  <string>App Monitor checks app-related downloads only when you request storage, cleanup, or uninstall analysis.</string>
+  <string>AppleiMonitor checks app-related downloads only when you request storage, cleanup, or uninstall analysis.</string>
   <key>NSNetworkVolumesUsageDescription</key>
-  <string>App Monitor checks app-related files on network volumes only when you include those locations in analysis.</string>
+  <string>AppleiMonitor checks app-related files on network volumes only when you include those locations in analysis.</string>
   <key>NSRemovableVolumesUsageDescription</key>
-  <string>App Monitor checks app-related files on removable volumes only when you include those locations in analysis.</string>
+  <string>AppleiMonitor checks app-related files on removable volumes only when you include those locations in analysis.</string>
   <key>NSHumanReadableCopyright</key>
   <string>Copyright © 2026 Jacob Crandall</string>
 </dict>

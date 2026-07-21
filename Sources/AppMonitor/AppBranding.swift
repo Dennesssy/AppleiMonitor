@@ -17,7 +17,13 @@ enum AppBranding {
             return image
         }
 
-        guard let url = Bundle.module.url(forResource: resourceName, withExtension: "png") else {
+        #if SWIFT_PACKAGE
+        let resourceBundle = Bundle.module
+        #else
+        let resourceBundle = Bundle.main
+        #endif
+
+        guard let url = resourceBundle.url(forResource: resourceName, withExtension: "png") else {
             return nil
         }
 

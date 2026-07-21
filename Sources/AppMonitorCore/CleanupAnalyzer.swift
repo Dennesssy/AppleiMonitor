@@ -126,11 +126,11 @@ public struct CleanupAnalyzer {
     private func riskNotes(for category: StorageCategory) -> String {
         switch category {
         case .caches, .logs, .httpStorages, .savedApplicationState, .diagnosticReports:
-            return "Low-risk candidate. App Monitor moves this to quarantine before final deletion."
+            return "Low-risk candidate. AppleiMonitor moves this to quarantine before final deletion."
         case .applicationSupport, .extensions, .launchAgents, .applicationScripts, .webKit, .cookies:
             return "Medium-risk candidate. Review ownership and restore from quarantine if the app needs it."
         case .bundle, .containers, .groupContainers, .preferences:
-            return "High-risk storage. App Monitor does not auto-suggest this category."
+            return "High-risk storage. AppleiMonitor does not auto-suggest this category."
         }
     }
 

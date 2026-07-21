@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-App Monitor is currently distributed from the latest GitHub release. Security fixes are made against `main` and published in the next release.
+AppleiMonitor is currently distributed from the latest GitHub release. Security fixes are made against `main` and published in the next release.
 
 | Version | Supported |
 | ------- | --------- |
@@ -17,7 +17,7 @@ Use GitHub's private vulnerability reporting or repository security advisory flo
 
 Helpful reports include:
 
-- Affected App Monitor version or commit.
+- Affected AppleiMonitor version or commit.
 - macOS version and hardware architecture.
 - Clear reproduction steps.
 - Expected and actual behavior.
@@ -32,7 +32,7 @@ I will try to acknowledge security reports within 7 days and provide a status up
 
 In scope:
 
-- App Monitor source code in this repository.
+- AppleiMonitor source code in this repository.
 - Release packaging scripts and generated app metadata.
 - Local data handling for app inventory, usage history, storage scans, cleanup, update, and uninstall flows.
 

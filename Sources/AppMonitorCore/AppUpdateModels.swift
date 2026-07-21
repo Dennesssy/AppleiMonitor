@@ -313,7 +313,7 @@ public struct AppChangeLogEntry: Identifiable, Hashable, Codable, Sendable {
         let summary = record.releaseNotesSummary
             ?? result?.message
             ?? record.message
-            ?? "App Monitor recorded an update from \(record.source.displayName). Detailed release notes were not available from this provider."
+            ?? "AppleiMonitor recorded an update from \(record.source.displayName). Detailed release notes were not available from this provider."
 
         return AppChangeLogEntry(
             appID: record.appID,

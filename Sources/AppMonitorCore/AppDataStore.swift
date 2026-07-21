@@ -1,15 +1,15 @@
 import Foundation
 
 public final class AppDataStore {
-    private let queue = DispatchQueue(label: "com.jacob.appmonitor.datastore")
+    private let queue = DispatchQueue(label: "com.dennesssy.AppleiMonitor.datastore")
     private let database: SQLiteDatabase
     public let databaseURL: URL
 
     public convenience init() throws {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("App Monitor", isDirectory: true)
+            .appendingPathComponent("AppleiMonitor", isDirectory: true)
         try FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
-        try self.init(databaseURL: base.appendingPathComponent("AppMonitor.sqlite"))
+        try self.init(databaseURL: base.appendingPathComponent("AppleiMonitor.sqlite"))
     }
 
     public init(databaseURL: URL) throws {

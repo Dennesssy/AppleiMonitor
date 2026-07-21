@@ -10,7 +10,7 @@ struct AppMonitorApp: App {
     @StateObject private var model = AppModel()
 
     var body: some Scene {
-        WindowGroup("App Monitor", id: appMonitorDashboardWindowID) {
+        WindowGroup("AppleiMonitor", id: appMonitorDashboardWindowID) {
             DashboardView()
                 .environmentObject(model)
                 .preferredColorScheme(model.appearancePreference.colorScheme)
@@ -40,7 +40,7 @@ struct AppMonitorApp: App {
                 }
                 .keyboardShortcut("r", modifiers: [.command, .shift])
 
-                Button("Check for App Monitor Updates") {
+                Button("Check for AppleiMonitor Updates") {
                     Task { await model.checkForAppMonitorUpdate() }
                 }
                 .keyboardShortcut("u", modifiers: [.command, .shift])
@@ -60,10 +60,12 @@ struct AppMonitorApp: App {
                     .keyboardShortcut("3", modifiers: [.command])
                 Button("Warnings") { model.navigate(.warnings) }
                     .keyboardShortcut("4", modifiers: [.command])
-                Button("Quarantine Review") { model.navigate(.cleanup) }
+                Button("Configuration Health") { model.navigate(.configurationHealth) }
                     .keyboardShortcut("5", modifiers: [.command])
-                Button("History") { model.navigate(.history) }
+                Button("Quarantine Review") { model.navigate(.cleanup) }
                     .keyboardShortcut("6", modifiers: [.command])
+                Button("History") { model.navigate(.history) }
+                    .keyboardShortcut("7", modifiers: [.command])
                 Button("Settings") { model.navigate(.settings) }
                     .keyboardShortcut(",", modifiers: [.command])
                 Divider()

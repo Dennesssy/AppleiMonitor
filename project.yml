@@ -1,0 +1,77 @@
+name: AppleiMonitor
+options:
+  bundleIdPrefix: com.dennesssy
+  deploymentTarget:
+    macOS: "14.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    CODE_SIGN_STYLE: Automatic
+    CODE_SIGNING_ALLOWED: NO
+    ENABLE_APP_SANDBOX: NO
+targets:
+  AppMonitorCore:
+    type: library.static
+    platform: macOS
+    sources:
+      - path: Sources/AppMonitorCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dennesssy.AppleiMonitor.Core
+        DEFINES_MODULE: YES
+        SWIFT_INCLUDE_PATHS: "$(SRCROOT)/Sources/CSQLite"
+    dependencies:
+      - sdk: libsqlite3.tbd
+  AppleiMonitorAskpass:
+    type: tool
+    platform: macOS
+    sources:
+      - path: Sources/AppMonitorAskpass
+    settings:
+      base:
+        PRODUCT_NAME: AppleiMonitorAskpass
+  AppleiMonitor:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/AppMonitor
+    resources:
+      - path: Sources/AppMonitor/Resources
+    dependencies:
+      - target: AppMonitorCore
+      - sdk: libsqlite3.tbd
+      - target: AppleiMonitorAskpass
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dennesssy.AppleiMonitor
+        PRODUCT_NAME: AppleiMonitor
+        SWIFT_INCLUDE_PATHS: "$(SRCROOT)/Sources/CSQLite"
+        INFOPLIST_KEY_CFBundleDisplayName: AppleiMonitor
+        INFOPLIST_KEY_LSMinimumSystemVersion: "14.0"
+        INFOPLIST_KEY_NSPrincipalClass: NSApplication
+        INFOPLIST_KEY_NSAppleEventsUsageDescription: "AppleiMonitor checks app update commands only when requested."
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_ENTITLEMENTS: ""
+  AppMonitorCoreTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests/AppMonitorCoreTests
+    dependencies:
+      - target: AppMonitorCore
+      - sdk: libsqlite3.tbd
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dennesssy.AppleiMonitor.CoreTests
+        SWIFT_INCLUDE_PATHS: "$(SRCROOT)/Sources/CSQLite"
+schemes:
+  AppleiMonitor:
+    build:
+      targets:
+        AppleiMonitor: all
+        AppMonitorCoreTests: [test]
+    test:
+      targets:
+        - AppMonitorCoreTests

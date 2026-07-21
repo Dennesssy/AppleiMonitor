@@ -23,7 +23,7 @@ TAG_NAME="${APP_MONITOR_TAG:-beta}"
 APPCAST_URL="${APP_MONITOR_APPCAST_URL:-https://github.com/$REPOSITORY/releases/latest/download/appcast.xml}"
 RELEASE_BASE_URL="${APP_MONITOR_RELEASE_BASE_URL:-https://github.com/$REPOSITORY/releases/download/$TAG_NAME}"
 RELEASE_DIR="$ROOT_DIR/build/release"
-APP_DIR="$ROOT_DIR/build/App Monitor.app"
+APP_DIR="$ROOT_DIR/build/AppleiMonitor.app"
 ZIP_NAME="${APP_MONITOR_ZIP_NAME:-App-Monitor-Beta.zip}"
 DMG_NAME="${APP_MONITOR_DMG_NAME:-App-Monitor-Beta.dmg}"
 ZIP_PATH="$RELEASE_DIR/$ZIP_NAME"
@@ -33,7 +33,7 @@ SHA_PATH="$RELEASE_DIR/SHA256SUMS"
 NOTARY_PROFILE="${APP_MONITOR_NOTARY_PROFILE:-}"
 SIGN_IDENTITY="${APP_MONITOR_SIGN_IDENTITY:-}"
 DMG_ICON="$ROOT_DIR/Sources/AppMonitor/Resources/AppMonitorIcon.icns"
-RELEASE_DISPLAY_NAME="${APP_MONITOR_RELEASE_DISPLAY_NAME:-App Monitor Beta}"
+RELEASE_DISPLAY_NAME="${APP_MONITOR_RELEASE_DISPLAY_NAME:-AppleiMonitor Beta}"
 
 cd "$ROOT_DIR"
 rm -rf "$RELEASE_DIR"
@@ -53,7 +53,7 @@ create_dmg() {
   local staging_dir="$RELEASE_DIR/dmg-root"
   rm -rf "$staging_dir" "$DMG_PATH"
   mkdir -p "$staging_dir"
-  ditto "$APP_DIR" "$staging_dir/App Monitor.app"
+  ditto "$APP_DIR" "$staging_dir/AppleiMonitor.app"
   ln -s /Applications "$staging_dir/Applications"
 
   cp "$DMG_ICON" "$staging_dir/.VolumeIcon.icns"
@@ -63,7 +63,7 @@ create_dmg() {
 
   diskutil image create from \
     --format UDZO \
-    --volumeName "App Monitor $VERSION" \
+    --volumeName "AppleiMonitor $VERSION" \
     "$staging_dir" \
     "$DMG_PATH" >/dev/null
   rm -rf "$staging_dir"
@@ -114,9 +114,9 @@ cat > "$APPCAST_PATH" <<XML
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
   <channel>
-    <title>App Monitor Updates</title>
+    <title>AppleiMonitor Updates</title>
     <link>https://github.com/$REPOSITORY/releases</link>
-    <description>App Monitor release feed.</description>
+    <description>AppleiMonitor release feed.</description>
     <item>
       <title>$RELEASE_DISPLAY_NAME</title>
       <pubDate>$PUB_DATE</pubDate>

@@ -6,6 +6,7 @@ public enum AppAccessibilityIdentifier {
     public static let sidebarUpdates = "app-monitor.sidebar.updates"
     public static let sidebarAllApps = "app-monitor.sidebar.all-apps"
     public static let sidebarWarnings = "app-monitor.sidebar.warnings"
+    public static let sidebarConfigurationHealth = "app-monitor.sidebar.configuration-health"
     public static let sidebarQuarantine = "app-monitor.sidebar.quarantine"
     public static let sidebarHistory = "app-monitor.sidebar.history"
     public static let sidebarSettings = "app-monitor.sidebar.settings"
@@ -27,6 +28,7 @@ public enum AppAccessibilityIdentifier {
         sidebarUpdates,
         sidebarAllApps,
         sidebarWarnings,
+        sidebarConfigurationHealth,
         sidebarQuarantine,
         sidebarHistory,
         sidebarSettings,

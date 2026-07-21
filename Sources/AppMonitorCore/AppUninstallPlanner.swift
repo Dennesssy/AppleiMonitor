@@ -55,13 +55,13 @@ public struct AppUninstallPlanner {
     public func protectionReason(for app: MonitoredApp) -> String? {
         let path = standardizedPath(app.path)
         if path == Bundle.main.bundleURL.standardizedFileURL.path {
-            return "App Monitor cannot uninstall itself."
+            return "AppleiMonitor cannot uninstall itself."
         }
         if path.hasPrefix("/System/") {
             return "System applications are protected."
         }
-        if let bundleID = app.bundleIdentifier?.lowercased(), bundleID == "com.jacob.appmonitor" {
-            return "App Monitor cannot uninstall itself."
+        if let bundleID = app.bundleIdentifier?.lowercased(), bundleID == "com.dennesssy.AppleiMonitor" {
+            return "AppleiMonitor cannot uninstall itself."
         }
         if let bundleID = app.bundleIdentifier?.lowercased(), bundleID.hasPrefix("com.apple.") {
             return "Apple system applications are protected."
@@ -125,7 +125,7 @@ public struct AppUninstallPlanner {
         }
 
         if risk == .protected {
-            return "Protected items are not uninstallable from App Monitor."
+            return "Protected items are not uninstallable from AppleiMonitor."
         }
 
         switch role {

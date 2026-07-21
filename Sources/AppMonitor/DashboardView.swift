@@ -112,7 +112,7 @@ private struct SidebarView: View {
                 VStack(alignment: .leading, spacing: 18) {
                     HStack(spacing: 10) {
                         AppMonitorLogoMark(size: 34)
-                        Text("App Monitor")
+                        Text("AppleiMonitor")
                             .font(.headline.weight(.semibold))
                             .foregroundStyle(DashboardTheme.primaryText)
                     }
@@ -340,6 +340,15 @@ private struct SidebarView: View {
                         .sidebarKeyboardFocus(id: AppAccessibilityIdentifier.sidebarWarnings, focusedID: $focusedSidebarID)
                         .id(AppAccessibilityIdentifier.sidebarWarnings)
                         Button {
+                            model.navigate(.configurationHealth)
+                        } label: {
+                            SidebarMetricItem(title: "Configuration Health", systemImage: "checklist.checked", value: "", isSelected: model.destination == .configurationHealth)
+                        }
+                        .buttonStyle(.plain)
+                        .appAccessibleControl(id: AppAccessibilityIdentifier.sidebarConfigurationHealth, label: "Configuration Health")
+                        .sidebarKeyboardFocus(id: AppAccessibilityIdentifier.sidebarConfigurationHealth, focusedID: $focusedSidebarID)
+                        .id(AppAccessibilityIdentifier.sidebarConfigurationHealth)
+                        Button {
                             model.navigate(.cleanup)
                         } label: {
                             SidebarMetricItem(title: "Quarantine Review", systemImage: "shield.lefthalf.filled", value: compactBytes(potentialSavingsBytes), badgeColor: DashboardTheme.accent.opacity(0.12), valueColor: DashboardTheme.accent, isSelected: model.destination == .cleanup)
@@ -426,6 +435,7 @@ private struct SidebarView: View {
         case .usageTrends: return AppAccessibilityIdentifier.sidebar("usage-trends")
         case .activityTimeline: return AppAccessibilityIdentifier.sidebar("activity-timeline")
         case .warnings: return AppAccessibilityIdentifier.sidebarWarnings
+        case .configurationHealth: return AppAccessibilityIdentifier.sidebarConfigurationHealth
         case .updates: return AppAccessibilityIdentifier.sidebarUpdates
         case .cleanup: return AppAccessibilityIdentifier.sidebarQuarantine
         case .history: return AppAccessibilityIdentifier.sidebarHistory
@@ -593,7 +603,7 @@ private struct DashboardMainView: View {
                 OverviewDecisionMetric(
                     title: "Discovered this week",
                     value: "\(recentlyDiscoveredCount)",
-                    definition: "Apps first seen by App Monitor during this calendar week.",
+                    definition: "Apps first seen by AppleiMonitor during this calendar week.",
                     actionTitle: "View all apps",
                     systemImage: "sparkles",
                     tint: DashboardTheme.accent
@@ -768,6 +778,8 @@ private struct DashboardDestinationContent: View {
             ActivityTimelineScreen()
         case .warnings:
             WarningsScreen()
+        case .configurationHealth:
+            ConfigurationHealthView()
         case .updates:
             UpdatesScreen()
         case .cleanup:
@@ -1062,7 +1074,7 @@ private struct UnusedStoragePassUsageTrendsWorkspace: View {
             DashboardCard {
                 CardHeader(title: "Usage Over Time", subtitle: "\(snapshot.grouping.rawValue) stacked by top applications")
                 if snapshot.trendBuckets.isEmpty {
-                    EmptyCardState(systemImage: "chart.xyaxis.line", message: "Usage trends will appear after App Monitor records active windows.")
+                    EmptyCardState(systemImage: "chart.xyaxis.line", message: "Usage trends will appear after AppleiMonitor records active windows.")
                         .frame(height: 190)
                 } else {
                     UsageAnalyticsBucketChart(buckets: snapshot.trendBuckets)
@@ -1853,7 +1865,7 @@ private struct TimelineModeContent: View {
     var body: some View {
         if sessions.isEmpty {
             DashboardCard {
-                EmptyCardState(systemImage: "point.3.connected.trianglepath.dotted", message: "Usage sessions will appear after App Monitor records active windows.")
+                EmptyCardState(systemImage: "point.3.connected.trianglepath.dotted", message: "Usage sessions will appear after AppleiMonitor records active windows.")
                     .frame(height: 210)
             }
         } else {
@@ -2561,7 +2573,7 @@ private struct TimelineListMode: View {
                     .padding(.bottom, 10)
 
                 if sessions.isEmpty {
-                    EmptyCardState(systemImage: "list.bullet.rectangle", message: "Usage sessions will appear after App Monitor records active windows.")
+                    EmptyCardState(systemImage: "list.bullet.rectangle", message: "Usage sessions will appear after AppleiMonitor records active windows.")
                         .frame(height: 180)
                 } else {
                     TimelineListHeader()
@@ -2690,7 +2702,7 @@ private struct TimelineHeatmapMode: View {
                 CardHeader(title: "Hourly Heatmap", subtitle: "\(buckets.count) active hour bucket\(buckets.count == 1 ? "" : "s")")
 
                 if buckets.isEmpty {
-                    EmptyCardState(systemImage: "square.grid.3x3", message: "Usage sessions will appear after App Monitor records active windows.")
+                    EmptyCardState(systemImage: "square.grid.3x3", message: "Usage sessions will appear after AppleiMonitor records active windows.")
                         .frame(height: 190)
                 } else {
                     VStack(spacing: 8) {
@@ -3465,7 +3477,7 @@ private struct CleanupCenterScreen: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("\(model.approvedCleanupCount) item\(model.approvedCleanupCount == 1 ? "" : "s") totaling \(compactBytes(model.approvedCleanupBytes)) will be moved to App Monitor quarantine so they can be restored later.")
+            Text("\(model.approvedCleanupCount) item\(model.approvedCleanupCount == 1 ? "" : "s") totaling \(compactBytes(model.approvedCleanupBytes)) will be moved to AppleiMonitor quarantine so they can be restored later.")
         }
     }
 }
@@ -4012,7 +4024,7 @@ private struct CleanupSafetyCard: View {
                     .foregroundStyle(DashboardTheme.primaryText)
 
                 CleanupSafetyStep(systemImage: "eye", title: "Preview", detail: "Review the exact path before adding it to the queue.")
-                CleanupSafetyStep(systemImage: "archivebox", title: "Quarantine", detail: "Approved items are moved to App Monitor quarantine, not permanently deleted.")
+                CleanupSafetyStep(systemImage: "archivebox", title: "Quarantine", detail: "Approved items are moved to AppleiMonitor quarantine, not permanently deleted.")
                 CleanupSafetyStep(systemImage: "arrow.counterclockwise", title: "Restore", detail: CleanupEvidencePolicy.restoreBehavior)
 
                 Text("Original path")
@@ -5549,9 +5561,9 @@ private struct HistoryActionStatusCard: View {
 
     private var statusCopy: String {
         if model.historyActionCanApplyDirectly(title: event.title, detail: event.detail) {
-            return "This event has enough local state for App Monitor to apply a restore or revert safely."
+            return "This event has enough local state for AppleiMonitor to apply a restore or revert safely."
         }
-        return "This event is preserved as an audit trail. App Monitor will log a revert request instead of attempting an unsafe undo."
+        return "This event is preserved as an audit trail. AppleiMonitor will log a revert request instead of attempting an unsafe undo."
     }
 }
 
@@ -5781,14 +5793,14 @@ private struct SettingsScreen: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            ScreenHeader(title: "Settings", subtitle: "Choose how App Monitor looks, scans, and keeps software current.")
+            ScreenHeader(title: "Settings", subtitle: "Choose how AppleiMonitor looks, scans, and keeps software current.")
                 .padding(.top, 6)
 
             DashboardCard {
                 VStack(alignment: .leading, spacing: 16) {
                     SettingsSectionHeader(title: "General", systemImage: "slider.horizontal.3")
                     AppearanceSettingsSection()
-                    Toggle("Launch App Monitor at login", isOn: Binding(
+                    Toggle("Launch AppleiMonitor at login", isOn: Binding(
                         get: { model.loginItemEnabled },
                         set: { model.setLoginItemEnabled($0) }
                     ))
@@ -5823,7 +5835,7 @@ private struct SettingsScreen: View {
                     Toggle("Show ignored apps in tables", isOn: $model.includeIgnoredApps)
                     Divider()
                     SettingsSectionHeader(title: "Privacy & Data", systemImage: "hand.raised")
-                    Text("Activity monitoring is local and ready. App Monitor records the active app's name, bundle identifier, path, start and end time, and duration. It does not record window titles, keystrokes, screen contents, microphone audio, or document contents.")
+                    Text("Activity monitoring is local and ready. AppleiMonitor records the active app's name, bundle identifier, path, start and end time, and duration. It does not record window titles, keystrokes, screen contents, microphone audio, or document contents.")
                         .font(.caption)
                         .foregroundStyle(DashboardTheme.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
@@ -5895,22 +5907,22 @@ private struct SettingsScreen: View {
                         .buttonStyle(.bordered)
                         .controlSize(.small)
                         .disabled(model.isRunningUpdates || model.homebrewAuthorizationStatus != "Saved in this Mac's Keychain")
-                        .help("Remove App Monitor's saved Homebrew administrator password from this Mac's Keychain.")
+                        .help("Remove AppleiMonitor's saved Homebrew administrator password from this Mac's Keychain.")
                     }
-                    Text("When Homebrew needs administrator access, App Monitor can save the password in this Mac's Keychain for later updates. Revoking it does not change Homebrew or uninstall software; the next eligible update will ask again.")
+                    Text("When Homebrew needs administrator access, AppleiMonitor can save the password in this Mac's Keychain for later updates. Revoking it does not change Homebrew or uninstall software; the next eligible update will ask again.")
                         .font(.caption)
                         .foregroundStyle(DashboardTheme.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
                     Divider()
-                    SettingsSectionHeader(title: "Update App Monitor", systemImage: "app.badge")
-                    Text("Controls updates for App Monitor itself.")
+                    SettingsSectionHeader(title: "Update AppleiMonitor", systemImage: "app.badge")
+                    Text("Controls updates for AppleiMonitor itself.")
                         .font(.caption)
                         .foregroundStyle(DashboardTheme.secondaryText)
-                    Toggle("Automatically check for App Monitor updates", isOn: Binding(
+                    Toggle("Automatically check for AppleiMonitor updates", isOn: Binding(
                         get: { model.appMonitorUpdateChecksEnabled },
                         set: { model.updateAppMonitorUpdateSchedule(enabled: $0) }
                     ))
-                    Toggle("Automatically install App Monitor updates", isOn: Binding(
+                    Toggle("Automatically install AppleiMonitor updates", isOn: Binding(
                         get: { model.appMonitorAutomaticUpdatesEnabled },
                         set: { model.updateAppMonitorAutomaticUpdates(enabled: $0) }
                     ))
@@ -5925,25 +5937,25 @@ private struct SettingsScreen: View {
                     }
                     .pickerStyle(.segmented)
                     HStack(alignment: .center, spacing: 12) {
-                        DashboardDetailLine(title: "Last App Monitor Check", value: AppMonitorFormatting.shortDateTime(model.appMonitorUpdateLastCheckAt))
+                        DashboardDetailLine(title: "Last AppleiMonitor Check", value: AppMonitorFormatting.shortDateTime(model.appMonitorUpdateLastCheckAt))
                             .frame(maxWidth: .infinity, alignment: .leading)
                         Button {
                             Task { await model.checkForAppMonitorUpdate() }
                         } label: {
-                            Label(model.isCheckingAppMonitorUpdate ? "Checking" : "Check App Monitor", systemImage: "arrow.clockwise")
+                            Label(model.isCheckingAppMonitorUpdate ? "Checking" : "Check AppleiMonitor", systemImage: "arrow.clockwise")
                                 .lineLimit(1)
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
                         .disabled(model.isCheckingAppMonitorUpdate || model.isInstallingAppMonitorUpdate)
                     }
-                    DashboardDetailLine(title: "Next App Monitor Check", value: AppMonitorFormatting.shortDateTime(model.appMonitorUpdateNextCheckAt))
-                    DashboardDetailLine(title: "App Monitor Update Status", value: model.appMonitorUpdateMessage)
+                    DashboardDetailLine(title: "Next AppleiMonitor Check", value: AppMonitorFormatting.shortDateTime(model.appMonitorUpdateNextCheckAt))
+                    DashboardDetailLine(title: "AppleiMonitor Update Status", value: model.appMonitorUpdateMessage)
                     if model.appMonitorUpdateRecord != nil {
                         Button {
                             Task { await model.installAppMonitorUpdate() }
                         } label: {
-                            Label(model.isInstallingAppMonitorUpdate ? "Installing App Monitor" : "Install App Monitor Update", systemImage: "square.and.arrow.down")
+                            Label(model.isInstallingAppMonitorUpdate ? "Installing AppleiMonitor" : "Install AppleiMonitor Update", systemImage: "square.and.arrow.down")
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
@@ -6031,7 +6043,7 @@ private struct SettingsScreen: View {
             Button("Delete History", role: .destructive) { model.deleteMonitoringHistory() }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This permanently deletes locally measured activity events and imported Spotlight usage history from App Monitor. Spotlight history import will be turned off so deleted summaries do not return automatically. App inventory, settings, scans, updates, and quarantine records are kept. New local activity measurement begins immediately.")
+            Text("This permanently deletes locally measured activity events and imported Spotlight usage history from AppleiMonitor. Spotlight history import will be turned off so deleted summaries do not return automatically. App inventory, settings, scans, updates, and quarantine records are kept. New local activity measurement begins immediately.")
         }
         .alert("Revoke saved Homebrew authorization?", isPresented: $showsRevokeAuthorizationConfirmation) {
             Button("Revoke Authorization", role: .destructive) {
@@ -6039,7 +6051,7 @@ private struct SettingsScreen: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("App Monitor will remove its saved administrator password from this Mac's Keychain. A future Homebrew operation that needs administrator access will ask again.")
+            Text("AppleiMonitor will remove its saved administrator password from this Mac's Keychain. A future Homebrew operation that needs administrator access will ask again.")
         }
     }
 
@@ -6957,7 +6969,7 @@ private struct RecentActivityCard: View {
             CardHeader(title: "Recent Activity", subtitle: "By total usage time")
 
             if activityRows.isEmpty {
-                EmptyCardState(systemImage: "clock", message: "Usage will appear after App Monitor records active windows.")
+                EmptyCardState(systemImage: "clock", message: "Usage will appear after AppleiMonitor records active windows.")
                     .frame(height: 198)
             } else {
                 VStack(spacing: 12) {

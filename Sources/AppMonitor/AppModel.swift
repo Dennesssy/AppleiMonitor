@@ -78,9 +78,9 @@ private enum AppMonitorSelfUpdateError: LocalizedError {
         case .missingPackageURL:
             return "The update feed did not include a downloadable package."
         case let .unsupportedPackage(pathExtension):
-            return "App Monitor cannot install .\(pathExtension) update packages yet."
+            return "AppleiMonitor cannot install .\(pathExtension) update packages yet."
         case .appBundleNotFound:
-            return "The update package did not contain App Monitor.app."
+            return "The update package did not contain AppleiMonitor.app."
         case .checksumMismatch:
             return "The downloaded update did not match the appcast checksum."
         }
@@ -115,6 +115,7 @@ final class AppModel: ObservableObject {
         case usageTrends = "Usage Trends"
         case activityTimeline = "Activity Timeline"
         case warnings = "Warnings"
+        case configurationHealth = "Configuration Health"
         case updates = "Updates"
         case cleanup = "Cleanup Suggestions"
         case history = "History"
@@ -291,7 +292,7 @@ final class AppModel: ObservableObject {
     @Published var appMonitorUpdateChecksEnabled = AppModel.loadAppMonitorUpdateChecksEnabled()
     @Published var appMonitorAutomaticUpdatesEnabled = AppModel.loadAppMonitorAutomaticUpdatesEnabled()
     @Published var appMonitorUpdateCadenceHours = AppModel.loadAppMonitorUpdateCadenceHours()
-    @Published var appMonitorUpdateMessage = AppModel.loadAppMonitorUpdateLastCheckAt() == nil ? "Not checked yet" : "No App Monitor update loaded."
+    @Published var appMonitorUpdateMessage = AppModel.loadAppMonitorUpdateLastCheckAt() == nil ? "Not checked yet" : "No AppleiMonitor update loaded."
     @Published var updateRuns: [UpdateRunRecord] = []
     @Published var updateItemResults: [UpdateItemResult] = []
     @Published var changeLogEntries: [AppChangeLogEntry] = []
@@ -430,7 +431,7 @@ final class AppModel: ObservableObject {
         do {
             dataStore = try AppDataStore()
         } catch {
-            fatalError("Unable to create App Monitor datastore: \(error)")
+            fatalError("Unable to create AppleiMonitor datastore: \(error)")
         }
         tracker = UsageTracker(dataStore: dataStore)
         AppAppearanceSettings.apply(appearancePreference)
@@ -514,7 +515,7 @@ final class AppModel: ObservableObject {
 
     var hasInspectorContent: Bool {
         switch destination {
-        case .overview, .usageTrends, .settings:
+        case .overview, .usageTrends, .configurationHealth, .settings:
             return false
         case .updates:
             return focusedUpdateID != nil
@@ -719,7 +720,7 @@ final class AppModel: ObservableObject {
     }
 
     var localDataLocation: String {
-        "~/Library/Application Support/App Monitor/\(dataStore.databaseURL.lastPathComponent)"
+        "~/Library/Application Support/AppleiMonitor/\(dataStore.databaseURL.lastPathComponent)"
     }
 
     func bootstrap() async {
@@ -1095,8 +1096,8 @@ final class AppModel: ObservableObject {
     func checkForAppMonitorUpdate(installIfAvailable: Bool = false) async {
         guard !isCheckingAppMonitorUpdate, !isInstallingAppMonitorUpdate else { return }
         isCheckingAppMonitorUpdate = true
-        appMonitorUpdateMessage = "Checking App Monitor..."
-        lastMessage = "Checking for App Monitor updates..."
+        appMonitorUpdateMessage = "Checking AppleiMonitor..."
+        lastMessage = "Checking for AppleiMonitor updates..."
 
         defer {
             isCheckingAppMonitorUpdate = false
@@ -1105,7 +1106,7 @@ final class AppModel: ObservableObject {
         guard let appcastURL = appMonitorAppcastURL() else {
             appMonitorUpdateRecord = nil
             appMonitorUpdateItem = nil
-            appMonitorUpdateMessage = "No App Monitor update feed is configured for this build."
+            appMonitorUpdateMessage = "No AppleiMonitor update feed is configured for this build."
             lastMessage = appMonitorUpdateMessage
             return
         }
@@ -1113,7 +1114,7 @@ final class AppModel: ObservableObject {
         guard let currentApp = currentAppForUpdateDetection() else {
             appMonitorUpdateRecord = nil
             appMonitorUpdateItem = nil
-            appMonitorUpdateMessage = "App Monitor update checks are available from the packaged app."
+            appMonitorUpdateMessage = "AppleiMonitor update checks are available from the packaged app."
             lastMessage = appMonitorUpdateMessage
             return
         }
@@ -1128,14 +1129,14 @@ final class AppModel: ObservableObject {
             guard item.version.map({ VersionComparator.isVersion($0, newerThan: currentApp.version) }) ?? false else {
                 appMonitorUpdateRecord = nil
                 appMonitorUpdateItem = nil
-                appMonitorUpdateMessage = "App Monitor is up to date."
+                appMonitorUpdateMessage = "AppleiMonitor is up to date."
                 lastMessage = appMonitorUpdateMessage
                 return
             }
 
             appMonitorUpdateItem = item
             appMonitorUpdateRecord = appMonitorUpdateRecord(from: item, currentApp: currentApp, appcastURL: appcastURL, checkedAt: checkedAt)
-            appMonitorUpdateMessage = "App Monitor \(item.version ?? "update") is available."
+            appMonitorUpdateMessage = "AppleiMonitor \(item.version ?? "update") is available."
             lastMessage = appMonitorUpdateMessage
 
             if installIfAvailable {
@@ -1144,7 +1145,7 @@ final class AppModel: ObservableObject {
         } catch {
             appMonitorUpdateRecord = nil
             appMonitorUpdateItem = nil
-            appMonitorUpdateMessage = "App Monitor update check failed: \(error.localizedDescription)"
+            appMonitorUpdateMessage = "AppleiMonitor update check failed: \(error.localizedDescription)"
             lastMessage = appMonitorUpdateMessage
         }
     }
@@ -1288,13 +1289,13 @@ final class AppModel: ObservableObject {
     func installAppMonitorUpdate() async {
         guard !isInstallingAppMonitorUpdate else { return }
         guard let item = appMonitorUpdateItem, item.url != nil else {
-            appMonitorUpdateMessage = "Check App Monitor first to load an update package."
+            appMonitorUpdateMessage = "Check AppleiMonitor first to load an update package."
             lastMessage = appMonitorUpdateMessage
             return
         }
 
         isInstallingAppMonitorUpdate = true
-        appMonitorUpdateMessage = "Preparing App Monitor update..."
+        appMonitorUpdateMessage = "Preparing AppleiMonitor update..."
         lastMessage = appMonitorUpdateMessage
 
         do {
@@ -1303,11 +1304,11 @@ final class AppModel: ObservableObject {
                 try await Self.prepareAppMonitorUpdateInstall(item: item, currentBundleURL: currentBundleURL)
             }.value
             try launchAppMonitorUpdateInstaller(plan: plan)
-            appMonitorUpdateMessage = "Installing App Monitor update. App Monitor will relaunch."
+            appMonitorUpdateMessage = "Installing AppleiMonitor update. AppleiMonitor will relaunch."
             lastMessage = appMonitorUpdateMessage
             NSApp.terminate(nil)
         } catch {
-            appMonitorUpdateMessage = "App Monitor update install failed: \(error.localizedDescription)"
+            appMonitorUpdateMessage = "AppleiMonitor update install failed: \(error.localizedDescription)"
             lastMessage = appMonitorUpdateMessage
             isInstallingAppMonitorUpdate = false
         }
@@ -1850,13 +1851,13 @@ final class AppModel: ObservableObject {
 
     func exportCurrentRows() {
         let csv = CSVExporter.appRowsCSV(rows: displayedRows)
-        save(csv: csv, suggestedName: "App Monitor \(period.rawValue) Apps.csv")
+        save(csv: csv, suggestedName: "AppleiMonitor \(period.rawValue) Apps.csv")
     }
 
     func exportDailyUsage() {
         do {
             let csv = CSVExporter.dailyUsageCSV(rows: try dataStore.dailyUsageRows(period: period, includeAll: includeAllBundles))
-            save(csv: csv, suggestedName: "App Monitor \(period.rawValue) Daily Usage.csv")
+            save(csv: csv, suggestedName: "AppleiMonitor \(period.rawValue) Daily Usage.csv")
         } catch {
             lastMessage = "Export failed: \(error.localizedDescription)"
         }
@@ -1865,35 +1866,35 @@ final class AppModel: ObservableObject {
     func exportUsageSummary() {
         save(
             csv: CSVExporter.usageSummaryCSV(snapshot: usageAnalytics),
-            suggestedName: "App Monitor \(period.rawValue) Usage Summary.csv"
+            suggestedName: "AppleiMonitor \(period.rawValue) Usage Summary.csv"
         )
     }
 
     func exportUsageTrendBuckets() {
         save(
             csv: CSVExporter.trendBucketsCSV(buckets: usageAnalytics.trendBuckets),
-            suggestedName: "App Monitor \(period.rawValue) Trend Buckets.csv"
+            suggestedName: "AppleiMonitor \(period.rawValue) Trend Buckets.csv"
         )
     }
 
     func exportTopApps() {
         save(
             csv: CSVExporter.topAppsCSV(topApps: usageAnalytics.topApps),
-            suggestedName: "App Monitor \(period.rawValue) Top Apps.csv"
+            suggestedName: "AppleiMonitor \(period.rawValue) Top Apps.csv"
         )
     }
 
     func exportUsageHeatmap() {
         save(
             csv: CSVExporter.heatmapCSV(cells: usageAnalytics.heatmapCells),
-            suggestedName: "App Monitor \(period.rawValue) Heatmap.csv"
+            suggestedName: "AppleiMonitor \(period.rawValue) Heatmap.csv"
         )
     }
 
     func exportTimelineSessions() {
         save(
             csv: CSVExporter.timelineSessionsCSV(rows: timelineSessions),
-            suggestedName: "App Monitor \(period.rawValue) Timeline Sessions.csv"
+            suggestedName: "AppleiMonitor \(period.rawValue) Timeline Sessions.csv"
         )
     }
 
@@ -1907,7 +1908,7 @@ final class AppModel: ObservableObject {
         let snapshot = usageAnalytics
         let summary = snapshot.summary
         guard summary.totalSeconds > 0 else {
-            return ["Usage insights will appear after App Monitor records more activity."]
+            return ["Usage insights will appear after AppleiMonitor records more activity."]
         }
 
         var insights: [String] = []
@@ -2726,7 +2727,7 @@ final class AppModel: ObservableObject {
         keepRunningWhenClosed = enabled
         AppLifecycleSettings.keepRunningWhenClosed = enabled
         if enabled {
-            lastMessage = "Closing the dashboard will keep App Monitor in the menu bar"
+            lastMessage = "Closing the dashboard will keep AppleiMonitor in the menu bar"
         } else {
             NSApp.setActivationPolicy(.regular)
             lastMessage = "Dashboard close behavior restored"
@@ -3159,7 +3160,7 @@ final class AppModel: ObservableObject {
             return "Reinstall the app from a trusted source or contact the developer to resolve signing and notarization issues."
         }
         if title.contains("readable") {
-            return "Grant App Monitor the needed permission or verify the bundle path is still valid."
+            return "Grant AppleiMonitor the needed permission or verify the bundle path is still valid."
         }
         if title.contains("writable") {
             return "Confirm the app was installed from a trusted source and repair permissions if this bundle should be protected."
@@ -3523,7 +3524,7 @@ final class AppModel: ObservableObject {
     ) -> AppUpdateRecord {
         AppUpdateRecord(
             appID: currentApp.id,
-            appName: "App Monitor",
+            appName: "AppleiMonitor",
             bundleIdentifier: currentApp.bundleIdentifier,
             appPath: currentApp.path,
             source: .directDownload,
@@ -3532,7 +3533,7 @@ final class AppModel: ObservableObject {
             availableVersion: item.version,
             status: .available,
             checkedAt: checkedAt,
-            installActionTitle: "Install App Monitor Update",
+            installActionTitle: "Install AppleiMonitor Update",
             installActionURL: item.url?.absoluteString,
             requiresAdmin: false,
             requiresRestart: true,
@@ -3573,7 +3574,7 @@ final class AppModel: ObservableObject {
 
         let extractedDirectoryURL = workDirectoryURL.appendingPathComponent("extracted", isDirectory: true)
         try fileManager.createDirectory(at: extractedDirectoryURL, withIntermediateDirectories: true)
-        let stagedAppURL = workDirectoryURL.appendingPathComponent("App Monitor.app", isDirectory: true)
+        let stagedAppURL = workDirectoryURL.appendingPathComponent("AppleiMonitor.app", isDirectory: true)
         let packageExtension = packageFileURL.pathExtension.lowercased()
 
         switch packageExtension {
@@ -3617,7 +3618,7 @@ final class AppModel: ObservableObject {
 
         for case let url as URL in enumerator {
             guard url.pathExtension == "app" else { continue }
-            if url.lastPathComponent == "App Monitor.app" {
+            if url.lastPathComponent == "AppleiMonitor.app" {
                 return url
             }
         }
@@ -3796,7 +3797,7 @@ final class AppModel: ObservableObject {
                 releaseNotesTitle: record.releaseNotesTitle,
                 releaseNotesSummary: record.releaseNotesSummary,
                 releaseNotesURL: record.releaseNotesURL,
-                message: "The Homebrew app artifact is missing. App Monitor will repair it by reinstalling the cask."
+                message: "The Homebrew app artifact is missing. AppleiMonitor will repair it by reinstalling the cask."
             )
         }
 
@@ -3848,7 +3849,7 @@ final class AppModel: ObservableObject {
                 releaseNotesTitle: record.releaseNotesTitle,
                 releaseNotesSummary: record.releaseNotesSummary,
                 releaseNotesURL: record.releaseNotesURL,
-                message: "Homebrew can adopt this app. App Monitor will use a macOS password prompt for Homebrew's sudo step."
+                message: "Homebrew can adopt this app. AppleiMonitor will use a macOS password prompt for Homebrew's sudo step."
             )
         }
 
@@ -4272,7 +4273,7 @@ final class AppModel: ObservableObject {
         do {
             var request = URLRequest(url: url)
             request.timeoutInterval = 8
-            request.setValue("App Monitor release notes fetcher", forHTTPHeaderField: "User-Agent")
+            request.setValue("AppleiMonitor release notes fetcher", forHTTPHeaderField: "User-Agent")
             request.setValue("text/html,text/plain,application/xhtml+xml,application/xml;q=0.8,*/*;q=0.2", forHTTPHeaderField: "Accept")
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse,

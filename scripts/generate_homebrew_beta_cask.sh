@@ -37,7 +37,7 @@ cask "app-monitor@beta" do
   sha256 "$DMG_SHA256"
 
   url "https://github.com/$REPOSITORY/releases/download/v#{version.csv.first}-beta.#{version.csv.second}/$DMG_NAME"
-  name "App Monitor Beta"
+  name "AppleiMonitor Beta"
   desc "App usage, cleanup, update, and uninstall dashboard"
   homepage "https://github.com/$REPOSITORY"
 
@@ -58,16 +58,16 @@ cask "app-monitor@beta" do
 
   depends_on macos: :sonoma
 
-  app "App Monitor.app"
+  app "AppleiMonitor.app"
 
-  uninstall quit: "com.jacob.appmonitor"
+  uninstall quit: "com.dennesssy.AppleiMonitor"
 
   zap trash: [
-    "~/Library/Application Support/App Monitor",
-    "~/Library/Caches/com.jacob.appmonitor",
-    "~/Library/HTTPStorages/com.jacob.appmonitor",
-    "~/Library/Preferences/com.jacob.appmonitor.plist",
-    "~/Library/Saved Application State/com.jacob.appmonitor.savedState",
+    "~/Library/Application Support/AppleiMonitor",
+    "~/Library/Caches/com.dennesssy.AppleiMonitor",
+    "~/Library/HTTPStorages/com.dennesssy.AppleiMonitor",
+    "~/Library/Preferences/com.dennesssy.AppleiMonitor.plist",
+    "~/Library/Saved Application State/com.dennesssy.AppleiMonitor.savedState",
   ]
 end
 RB

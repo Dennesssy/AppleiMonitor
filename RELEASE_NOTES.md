@@ -1,4 +1,4 @@
-# App Monitor 1.2.0 beta 5
+# AppleiMonitor 1.2.0 beta 5
 
 This release packages the complete KAN-28 product-design, trust, and accessibility remediation epic (KAN-29 through KAN-49).
 

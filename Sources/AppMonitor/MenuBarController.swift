@@ -34,18 +34,18 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
             if let button = item.button {
                 button.image = NSImage(
                     systemSymbolName: "waveform.path.ecg.rectangle",
-                    accessibilityDescription: "App Monitor"
+                    accessibilityDescription: "AppleiMonitor"
                 )
                 button.image?.isTemplate = true
-                button.toolTip = "App Monitor"
-                button.setAccessibilityLabel("App Monitor menu")
+                button.toolTip = "AppleiMonitor"
+                button.setAccessibilityLabel("AppleiMonitor menu")
             }
             statusItem = item
         }
 
         updateStatusItemInteraction()
         statusItem?.button?.setAccessibilityLabel(
-            "App Monitor menu, \(model.warningCount) warnings, \(model.availableUpdateCount) updates available"
+            "AppleiMonitor menu, \(model.warningCount) warnings, \(model.availableUpdateCount) updates available"
         )
         refreshPopoverContent()
     }
@@ -170,7 +170,7 @@ struct MenuBarInstaller: View {
 
     private func raiseExistingDashboardWindow() -> Bool {
         guard let dashboardWindow = NSApp.windows.first(where: { window in
-            window.title == "App Monitor" && !(window is NSPanel)
+            window.title == "AppleiMonitor" && !(window is NSPanel)
         }) else {
             return false
         }

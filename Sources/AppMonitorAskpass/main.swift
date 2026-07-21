@@ -28,7 +28,7 @@ private struct HomebrewCredentialStore {
     private let service: String
     private let account = NSUserName()
 
-    init(service: String = "com.jacob.appmonitor.homebrew-administrator") {
+    init(service: String = "com.dennesssy.AppleiMonitor.homebrew-administrator") {
         self.service = service
     }
 
@@ -70,7 +70,7 @@ private struct HomebrewCredentialStore {
 
         var item = baseQuery
         item[kSecValueData as String] = data
-        item[kSecAttrLabel as String] = "App Monitor Homebrew administrator password"
+        item[kSecAttrLabel as String] = "AppleiMonitor Homebrew administrator password"
         item[kSecAttrAccess as String] = try appOnlyAccess()
         let addStatus = SecItemAdd(item as CFDictionary, nil)
         guard addStatus == errSecSuccess else { throw AskpassError.keychain(addStatus) }
@@ -86,7 +86,7 @@ private struct HomebrewCredentialStore {
     private func appOnlyAccess() throws -> SecAccess {
         var access: SecAccess?
         let status = SecAccessCreate(
-            "App Monitor Homebrew administrator password" as CFString,
+            "AppleiMonitor Homebrew administrator password" as CFString,
             nil,
             &access
         )
@@ -97,7 +97,7 @@ private struct HomebrewCredentialStore {
     }
 }
 
-private enum AppMonitorAskpass {
+private enum AppleiMonitorAskpass {
     private static let attemptEnvironmentKey = "APP_MONITOR_ASKPASS_ATTEMPT_ID"
     private static let contextEnvironmentKey = "APP_MONITOR_ASKPASS_CONTEXT"
     private static let markerLifetime: TimeInterval = 15 * 60
@@ -122,14 +122,14 @@ private enum AppMonitorAskpass {
         } catch AskpassError.cancelled {
             exit(EXIT_FAILURE)
         } catch {
-            writeStandardError("App Monitor could not access its Homebrew credential: \(error.localizedDescription)\n")
+            writeStandardError("AppleiMonitor could not access its Homebrew credential: \(error.localizedDescription)\n")
             exit(EXIT_FAILURE)
         }
     }
 
     private static func runKeychainSelfTest() throws {
         let testStore = HomebrewCredentialStore(
-            service: "com.jacob.appmonitor.homebrew-administrator.self-test.\(UUID().uuidString)"
+            service: "com.dennesssy.AppleiMonitor.homebrew-administrator.self-test.\(UUID().uuidString)"
         )
         let testValue = UUID().uuidString
         defer { try? testStore.delete() }
@@ -167,7 +167,7 @@ private enum AppMonitorAskpass {
         alert.messageText = "Administrator password required"
         let context = ProcessInfo.processInfo.environment[contextEnvironmentKey]
             ?? "complete the requested Homebrew changes"
-        alert.informativeText = "App Monitor needs your macOS password to \(context). It will be saved in your Mac Keychain and reused for future Homebrew updates."
+        alert.informativeText = "AppleiMonitor needs your macOS password to \(context). It will be saved in your Mac Keychain and reused for future Homebrew updates."
         alert.alertStyle = .informational
         alert.addButton(withTitle: "Save and Continue")
         alert.addButton(withTitle: "Cancel")
@@ -189,7 +189,7 @@ private enum AppMonitorAskpass {
 
     private static func attemptMarkerURL() throws -> URL {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("AppMonitorAskpassAttempts", isDirectory: true)
+            .appendingPathComponent("AppleiMonitorAskpassAttempts", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directory.path)
         try removeExpiredAttemptMarkers(in: directory)
@@ -218,7 +218,7 @@ private enum AppMonitorAskpass {
 
     private static func removeAttemptMarkers() throws {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("AppMonitorAskpassAttempts", isDirectory: true)
+            .appendingPathComponent("AppleiMonitorAskpassAttempts", isDirectory: true)
         guard FileManager.default.fileExists(atPath: directory.path) else { return }
         try FileManager.default.removeItem(at: directory)
     }
@@ -232,4 +232,4 @@ private enum AppMonitorAskpass {
     }
 }
 
-AppMonitorAskpass.run()
+AppleiMonitorAskpass.run()

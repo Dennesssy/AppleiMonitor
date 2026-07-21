@@ -35,7 +35,7 @@ public struct AppHealthAuditor {
                 appID: app.id,
                 severity: .critical,
                 title: "Not Readable",
-                detail: "App Monitor cannot read this bundle with current permissions.",
+                detail: "AppleiMonitor cannot read this bundle with current permissions.",
                 source: "Filesystem",
                 checkedAt: checkedAt
             ))

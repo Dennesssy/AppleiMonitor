@@ -292,7 +292,7 @@ public struct StorageScanner {
             let bytes = attributes?[.size] as? NSNumber
             return SizeResult(
                 bytes: bytes?.int64Value ?? 0,
-                warning: "Symbolic link. App Monitor will not follow the destination when cleaning up."
+                warning: "Symbolic link. AppleiMonitor will not follow the destination when cleaning up."
             )
         }
 

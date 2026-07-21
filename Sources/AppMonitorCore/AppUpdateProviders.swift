@@ -102,7 +102,7 @@ private let homebrewReplacePrefix = "replace:"
 private let defaultHomebrewCaskRoots = ["/opt/homebrew/Caskroom", "/usr/local/Caskroom"]
 
 public enum HomebrewAskpassHelper {
-    public static let executableName = "AppMonitorAskpass"
+    public static let executableName = "AppleiMonitorAskpass"
 
     public static func executableURL(fileManager: FileManager = .default) -> URL? {
         var candidates: [URL] = [
@@ -585,12 +585,12 @@ public struct HomebrewUpdateProvider: AppUpdateProvider, @unchecked Sendable {
     private func makeAskpassAuthorization(context: String) throws -> HomebrewAskpassAuthorization {
         guard let helperURL = askpassHelperURL ?? HomebrewAskpassHelper.executableURL(fileManager: fileManager) else {
             throw CocoaError(.fileNoSuchFile, userInfo: [
-                NSLocalizedDescriptionKey: "The signed App Monitor askpass helper is missing."
+                NSLocalizedDescriptionKey: "The signed AppleiMonitor askpass helper is missing."
             ])
         }
         let attemptID = UUID().uuidString
         let markerDirectory = fileManager.temporaryDirectory
-            .appendingPathComponent("AppMonitorAskpassAttempts", isDirectory: true)
+            .appendingPathComponent("AppleiMonitorAskpassAttempts", isDirectory: true)
         try fileManager.createDirectory(at: markerDirectory, withIntermediateDirectories: true)
         try fileManager.setAttributes([.posixPermissions: 0o700], ofItemAtPath: markerDirectory.path)
         return HomebrewAskpassAuthorization(
@@ -876,9 +876,9 @@ public struct DirectDownloadUpdateProvider: AppUpdateProvider, @unchecked Sendab
                     canInstall: true,
                     isAutoEligible: false,
                     releaseNotesTitle: "\(app.name) update feed",
-                    releaseNotesSummary: "Sparkle feed detected, but App Monitor could not read the latest release notes.",
+                    releaseNotesSummary: "Sparkle feed detected, but AppleiMonitor could not read the latest release notes.",
                     releaseNotesURL: feedURL.absoluteString,
-                    message: "Sparkle feed detected, but App Monitor could not read the latest version: \(error.localizedDescription)"
+                    message: "Sparkle feed detected, but AppleiMonitor could not read the latest version: \(error.localizedDescription)"
                 ))
             }
         }
@@ -1524,7 +1524,7 @@ private func triggerUpdateMenu(record: AppUpdateRecord) -> ShellCommandResult {
         end try
         delay 0.25
       end repeat
-      set updateItemNames to {"Check for App Monitor Updates", "Check for Updates…", "Check for Updates...", "Check for Updates", "Check for Update…", "Check for Update...", "Check for Update", "Check for Software Updates…", "Check for Software Updates...", "Software Update…", "Software Update...", "Software Update", "Update…", "Update...", "Update", "Update Now", "Install Update"}
+      set updateItemNames to {"Check for AppleiMonitor Updates", "Check for Updates…", "Check for Updates...", "Check for Updates", "Check for Update…", "Check for Update...", "Check for Update", "Check for Software Updates…", "Check for Software Updates...", "Software Update…", "Software Update...", "Software Update", "Update…", "Update...", "Update", "Update Now", "Install Update"}
       repeat with targetMenuBarItem in menu bar items of menu bar 1 of targetProcess
         try
           set targetMenu to menu 1 of targetMenuBarItem

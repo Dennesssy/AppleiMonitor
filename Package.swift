@@ -3,14 +3,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "AppMonitor",
+    name: "AppleiMonitor",
     platforms: [
         .macOS(.v14)
     ],
     products: [
         .library(name: "AppMonitorCore", targets: ["AppMonitorCore"]),
-        .executable(name: "AppMonitor", targets: ["AppMonitor"]),
-        .executable(name: "AppMonitorAskpass", targets: ["AppMonitorAskpass"])
+        .executable(name: "AppleiMonitor", targets: ["AppMonitor"]),
+        .executable(name: "AppleiMonitorAskpass", targets: ["AppleiMonitorAskpass"])
     ],
     targets: [
         .systemLibrary(
@@ -29,7 +29,8 @@ let package = Package(
             ]
         ),
         .executableTarget(
-            name: "AppMonitorAskpass"
+            name: "AppleiMonitorAskpass",
+            path: "Sources/AppMonitorAskpass"
         ),
         .testTarget(
             name: "AppMonitorCoreTests",

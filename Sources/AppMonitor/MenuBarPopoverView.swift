@@ -102,7 +102,7 @@ struct MenuBarPopoverView: View {
             AppMonitorMark(size: 34)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("App Monitor")
+                Text("AppleiMonitor")
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(MenuBarTheme.primaryText)
                 Text("Your Mac at a glance")
@@ -122,7 +122,7 @@ struct MenuBarPopoverView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(MenuBarIconButtonStyle())
-            .accessibilityLabel("Open App Monitor settings")
+            .accessibilityLabel("Open AppleiMonitor settings")
             .help("Open Settings")
 
             Button {
@@ -187,7 +187,7 @@ struct MenuBarPopoverView: View {
                 if topRows.isEmpty {
                     EmptyPopoverState(
                         systemImage: "clock.badge.questionmark",
-                        message: "Usage appears after App Monitor records app activity."
+                        message: "Usage appears after AppleiMonitor records app activity."
                     )
                     .padding(.vertical, 18)
                 }
@@ -276,7 +276,7 @@ struct MenuBarPopoverView: View {
             Button {
                 openDashboard()
             } label: {
-                Text("Open App Monitor")
+                Text("Open AppleiMonitor")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(width: 164, height: 38)
@@ -287,7 +287,7 @@ struct MenuBarPopoverView: View {
             }
             .buttonStyle(.plain)
             .keyboardShortcut(.defaultAction)
-            .help("Open the App Monitor dashboard")
+            .help("Open the AppleiMonitor dashboard")
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 18)
