@@ -3,7 +3,7 @@
 dist/
 *.xcuserstate
 xcuserdata/
-build/
+build
 .DS_Store
 *.xcuserstate
 DerivedData/

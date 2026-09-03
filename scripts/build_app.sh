@@ -13,7 +13,7 @@ TIMESTAMP_SIGNATURE="${APP_MONITOR_TIMESTAMP_SIGNATURE:-auto}"
 PRODUCT_DIR="$ROOT_DIR/build"
 APP_NAME="AppleiMonitor"
 APP_DIR="$PRODUCT_DIR/$APP_NAME.app"
-BINARY_NAME="AppMonitor"
+BINARY_NAME="AppleiMonitor"
 ASKPASS_BINARY_NAME="AppleiMonitorAskpass"
 
 xml_escape() {
