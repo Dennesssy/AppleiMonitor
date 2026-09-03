@@ -367,6 +367,25 @@ private struct SidebarView: View {
                         .sidebarKeyboardFocus(id: AppAccessibilityIdentifier.sidebarHistory, focusedID: $focusedSidebarID)
                         .id(AppAccessibilityIdentifier.sidebarHistory)
                     }
+
+                    SidebarGroup(title: "Developer") {
+                        Button {
+                            model.navigate(.developerProjects)
+                        } label: {
+                            SidebarMetricItem(
+                                title: "Developer Projects",
+                                systemImage: "hammer",
+                                value: developerProjectBloatText,
+                                badgeColor: DashboardTheme.accent.opacity(0.12),
+                                valueColor: DashboardTheme.accent,
+                                isSelected: model.destination == .developerProjects
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .appAccessibleControl(id: AppAccessibilityIdentifier.sidebar("developer-projects"), label: "Developer Projects")
+                        .sidebarKeyboardFocus(id: AppAccessibilityIdentifier.sidebar("developer-projects"), focusedID: $focusedSidebarID)
+                        .id(AppAccessibilityIdentifier.sidebar("developer-projects"))
+                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)
@@ -438,6 +457,7 @@ private struct SidebarView: View {
         case .configurationHealth: return AppAccessibilityIdentifier.sidebarConfigurationHealth
         case .updates: return AppAccessibilityIdentifier.sidebarUpdates
         case .cleanup: return AppAccessibilityIdentifier.sidebarQuarantine
+        case .developerProjects: return AppAccessibilityIdentifier.sidebar("developer-projects")
         case .history: return AppAccessibilityIdentifier.sidebarHistory
         case .settings: return AppAccessibilityIdentifier.sidebarSettings
         }
@@ -474,6 +494,10 @@ private struct SidebarView: View {
     private var warningCountText: String {
         let count = model.warningCount
         return count == 0 ? "" : "\(count)"
+    }
+
+    private var developerProjectBloatText: String {
+        model.developerProjectsTotalBloatBytes == 0 ? "" : compactBytes(model.developerProjectsTotalBloatBytes)
     }
 
     private var availableUpdateRecords: [AppUpdateRecord] {
@@ -784,6 +808,8 @@ private struct DashboardDestinationContent: View {
             UpdatesScreen()
         case .cleanup:
             CleanupCenterScreen()
+        case .developerProjects:
+            DeveloperProjectsScreen()
         case .history:
             HistoryScreen()
         case .settings:
@@ -1586,6 +1612,199 @@ private struct LargeFileEvidenceBadge: View {
             .padding(.horizontal, 7)
             .padding(.vertical, 3)
             .background(color.opacity(0.12), in: Capsule())
+    }
+}
+
+private struct DeveloperProjectsScreen: View {
+    @EnvironmentObject private var model: AppModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top, spacing: 16) {
+                ScreenHeader(
+                    title: "Developer Projects",
+                    subtitle: "node_modules, Rust target, SwiftPM .build, and Xcode DerivedData bloat, git working-tree state, and real per-file iCloud sync status."
+                )
+                Spacer(minLength: 12)
+                HStack(spacing: 10) {
+                    Button {
+                        model.addDeveloperProjectScanRoot()
+                    } label: {
+                        ToolbarControl(title: "Add Folder", systemImage: "folder.badge.plus", compact: true)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Choose a folder to scan for developer projects")
+
+                    Button {
+                        Task { await model.refreshDeveloperProjects() }
+                    } label: {
+                        ToolbarControl(title: model.isScanningDeveloperProjects ? "Scanning" : "Scan", systemImage: "arrow.clockwise", compact: true)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(model.isScanningDeveloperProjects || model.developerProjectScanRoots.isEmpty)
+                    .help("Rescan the folders below for developer projects")
+                }
+            }
+            .padding(.top, 6)
+
+            if !model.developerProjectScanRoots.isEmpty {
+                DashboardCard {
+                    VStack(alignment: .leading, spacing: 10) {
+                        CardHeader(
+                            title: "Scan Folders",
+                            subtitle: "\(model.developerProjectScanRoots.count) folder\(model.developerProjectScanRoots.count == 1 ? "" : "s") scanned for projects"
+                        )
+                        ForEach(model.developerProjectScanRoots, id: \.self) { root in
+                            HStack(spacing: 8) {
+                                Image(systemName: "folder")
+                                    .foregroundStyle(DashboardTheme.secondaryText)
+                                Text(root)
+                                    .font(.caption.monospaced())
+                                    .foregroundStyle(DashboardTheme.primaryText)
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
+                                Spacer()
+                                Button {
+                                    model.removeDeveloperProjectScanRoot(root)
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundStyle(DashboardTheme.secondaryText)
+                                }
+                                .buttonStyle(.plain)
+                                .help("Stop scanning this folder")
+                            }
+                            .padding(.top, 4)
+                        }
+                    }
+                }
+            }
+
+            DashboardCard {
+                VStack(alignment: .leading, spacing: 0) {
+                    CardHeader(
+                        title: "Projects",
+                        subtitle: model.developerProjects.isEmpty
+                            ? "No developer projects found yet"
+                            : "\(model.developerProjects.count) project\(model.developerProjects.count == 1 ? "" : "s") · \(compactBytes(model.developerProjectsTotalBloatBytes)) reclaimable"
+                    )
+                    if model.developerProjectScanRoots.isEmpty {
+                        EmptyCardState(systemImage: "folder.badge.questionmark", message: "Add a folder to scan for git, npm, Rust, Swift, or Xcode projects.")
+                            .frame(height: 160)
+                    } else if model.developerProjects.isEmpty {
+                        EmptyCardState(
+                            systemImage: model.isScanningDeveloperProjects ? "arrow.clockwise" : "checkmark.circle",
+                            message: model.isScanningDeveloperProjects ? "Scanning..." : "Run Scan to look for developer projects in the folders above."
+                        )
+                        .frame(height: 160)
+                    } else {
+                        ForEach(model.developerProjects) { project in
+                            Divider()
+                            DeveloperProjectRow(project: project)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct DeveloperProjectRow: View {
+    @EnvironmentObject private var model: AppModel
+    let project: DeveloperProject
+
+    private var iCloudSummary: ICloudExposureSummary? {
+        model.iCloudExposureByProjectID[project.id]
+    }
+
+    private var isCheckingICloud: Bool {
+        model.checkingICloudExposureProjectIDs.contains(project.id)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "hammer")
+                    .font(.title3)
+                    .frame(width: 26, height: 26)
+                    .foregroundStyle(DashboardTheme.blue)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(project.name)
+                        .font(.callout.weight(.semibold))
+                        .foregroundStyle(DashboardTheme.primaryText)
+                        .lineLimit(1)
+                        .help(project.path)
+
+                    Text(project.path)
+                        .font(.caption)
+                        .foregroundStyle(DashboardTheme.secondaryText)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+
+                    HStack(spacing: 6) {
+                        ForEach(Array(project.markers).sorted(by: { $0.displayName < $1.displayName }), id: \.self) { marker in
+                            LargeFileEvidenceBadge(text: marker.displayName, color: DashboardTheme.secondaryText)
+                        }
+                    }
+                }
+
+                Spacer(minLength: 12)
+
+                VStack(alignment: .trailing, spacing: 7) {
+                    Text(compactBytes(project.totalBloatBytes))
+                        .font(.callout.weight(.semibold))
+                        .monospacedDigit()
+                    if let gitStatus = project.gitStatus {
+                        LargeFileEvidenceBadge(
+                            text: gitStatus.isClean ? "Git clean" : "\(gitStatus.uncommittedFileCount + gitStatus.untrackedFileCount) uncommitted",
+                            color: gitStatus.isClean ? DashboardTheme.green : DashboardTheme.orange
+                        )
+                    }
+                }
+            }
+
+            if !project.bloatItems.isEmpty {
+                HStack(spacing: 8) {
+                    ForEach(project.bloatItems) { item in
+                        LargeFileEvidenceBadge(text: "\(item.kind.displayName): \(compactBytes(item.sizeBytes))", color: DashboardTheme.accent)
+                    }
+                }
+            }
+
+            if let summary = iCloudSummary {
+                LargeFileEvidenceBadge(
+                    text: summary.mayStallOnAccess
+                        ? "iCloud: \(summary.datalessPlaceholderCount) file(s) not downloaded, access may stall"
+                        : (summary.isWithinICloudContainer ? "iCloud: fully synced" : "Not in an iCloud-synced folder"),
+                    color: summary.mayStallOnAccess ? DashboardTheme.red : DashboardTheme.green
+                )
+            }
+
+            HStack(spacing: 10) {
+                Button { model.revealInFinder(path: project.path) } label: {
+                    Label("Reveal", systemImage: "finder")
+                }
+                ForEach(project.bloatItems) { item in
+                    Button { model.revealInFinder(path: item.path) } label: {
+                        Label("Reveal \(item.kind.rawValue)", systemImage: "folder")
+                    }
+                    Button { model.moveDeveloperBloatItemToTrash(item, in: project) } label: {
+                        Label("Trash \(item.kind.rawValue)", systemImage: "trash")
+                    }
+                    .tint(DashboardTheme.red)
+                }
+                Button {
+                    Task { await model.checkICloudExposure(for: project) }
+                } label: {
+                    Label(isCheckingICloud ? "Checking iCloud..." : "Check iCloud Status", systemImage: "icloud")
+                }
+                .disabled(isCheckingICloud)
+                Spacer()
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+        }
+        .padding(.vertical, 13)
     }
 }
 

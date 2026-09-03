@@ -118,6 +118,7 @@ final class AppModel: ObservableObject {
         case configurationHealth = "Configuration Health"
         case updates = "Updates"
         case cleanup = "Cleanup Suggestions"
+        case developerProjects = "Developer Projects"
         case history = "History"
         case settings = "Settings"
 
@@ -344,6 +345,12 @@ final class AppModel: ObservableObject {
             }
         }
     }
+    @Published var developerProjects: [DeveloperProject] = []
+    @Published var isScanningDeveloperProjects = false
+    @Published var developerProjectScanRoots: [String] = AppModel.loadDeveloperProjectScanRoots()
+    @Published var developerProjectsLastScannedAt: Date?
+    @Published var iCloudExposureByProjectID: [String: ICloudExposureSummary] = [:]
+    @Published var checkingICloudExposureProjectIDs: Set<String> = []
     @Published var largeFiles: [LargeFileRecord] = []
     @Published private(set) var allStorageItems: [StorageScanItem] = []
     @Published private(set) var warningItems: [AppWarningItem] = []
@@ -376,6 +383,8 @@ final class AppModel: ObservableObject {
     private let uninstallExecutor = AppUninstallExecutor()
     private let healthAuditor = AppHealthAuditor()
     private let spotlightImporter = SpotlightUsageImporter()
+    private let developerProjectScanner = DeveloperProjectScanner()
+    private static let developerProjectScanRootsKey = "AppMonitorDeveloperProjectScanRoots"
     private var hasBootstrapped = false
     private var terminationObserver: NSObjectProtocol?
     private var schedulerTimer: Timer?
@@ -425,6 +434,10 @@ final class AppModel: ObservableObject {
     private static func loadAppMonitorUpdateCadenceHours() -> Int {
         let value = UserDefaults.standard.integer(forKey: appMonitorUpdateCadenceHoursKey)
         return value > 0 ? value : 24
+    }
+
+    private static func loadDeveloperProjectScanRoots() -> [String] {
+        UserDefaults.standard.stringArray(forKey: developerProjectScanRootsKey) ?? []
     }
 
     init() {
@@ -515,7 +528,7 @@ final class AppModel: ObservableObject {
 
     var hasInspectorContent: Bool {
         switch destination {
-        case .overview, .usageTrends, .configurationHealth, .settings:
+        case .overview, .usageTrends, .configurationHealth, .settings, .developerProjects:
             return false
         case .updates:
             return focusedUpdateID != nil
@@ -719,6 +732,14 @@ final class AppModel: ObservableObject {
         largeFiles.filter { $0.state == .needsReview }.count
     }
 
+    var developerProjectsTotalBloatBytes: Int64 {
+        developerProjects.reduce(0) { $0 + $1.totalBloatBytes }
+    }
+
+    var developerProjectsWithDirtyGitStateCount: Int {
+        developerProjects.filter { $0.gitStatus?.isClean == false }.count
+    }
+
     var localDataLocation: String {
         "~/Library/Application Support/AppleiMonitor/\(dataStore.databaseURL.lastPathComponent)"
     }
@@ -741,6 +762,9 @@ final class AppModel: ObservableObject {
         }
         await refreshStoredChangeLogNotes()
         await refreshPrivacyState()
+        if !developerProjectScanRoots.isEmpty {
+            await refreshDeveloperProjects()
+        }
     }
 
     func refreshPrivacyState() async {
@@ -1988,6 +2012,94 @@ final class AppModel: ObservableObject {
     func showStorageExplorer() {
         destination = .storage
         isInspectorVisible = false
+    }
+
+    func addDeveloperProjectScanRoot() {
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.allowsMultipleSelection = false
+        panel.prompt = "Add Folder"
+        panel.message = "Choose a folder to scan for developer projects (git, npm, Rust, Swift, or Xcode)."
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        let path = url.standardizedFileURL.path
+        guard !developerProjectScanRoots.contains(path) else { return }
+        developerProjectScanRoots.append(path)
+        UserDefaults.standard.set(developerProjectScanRoots, forKey: Self.developerProjectScanRootsKey)
+        Task { await refreshDeveloperProjects() }
+    }
+
+    func removeDeveloperProjectScanRoot(_ path: String) {
+        developerProjectScanRoots.removeAll { $0 == path }
+        UserDefaults.standard.set(developerProjectScanRoots, forKey: Self.developerProjectScanRootsKey)
+        developerProjects.removeAll { $0.path == path || $0.path.hasPrefix(path + "/") }
+        lastMessage = "Removed \(URL(fileURLWithPath: path).lastPathComponent) from developer project scan folders"
+    }
+
+    func refreshDeveloperProjects() async {
+        guard !isScanningDeveloperProjects else { return }
+        guard !developerProjectScanRoots.isEmpty else {
+            lastMessage = "Add a folder to scan for developer projects"
+            return
+        }
+        isScanningDeveloperProjects = true
+        lastMessage = "Scanning developer projects..."
+
+        let scanner = developerProjectScanner
+        let roots = developerProjectScanRoots
+        let projects = await Task.detached(priority: .utility) { () -> [DeveloperProject] in
+            var all: [DeveloperProject] = []
+            var seenPaths: Set<String> = []
+            for root in roots {
+                let rootURL = URL(fileURLWithPath: root)
+                for project in scanner.scanAllProjects(under: rootURL) where !seenPaths.contains(project.path) {
+                    seenPaths.insert(project.path)
+                    all.append(project)
+                }
+            }
+            return all.sorted { $0.totalBloatBytes > $1.totalBloatBytes }
+        }.value
+
+        developerProjects = projects
+        iCloudExposureByProjectID = iCloudExposureByProjectID.filter { id, _ in projects.contains { $0.id == id } }
+        developerProjectsLastScannedAt = Date()
+        lastMessage = "Found \(projects.count) developer project\(projects.count == 1 ? "" : "s")"
+        isScanningDeveloperProjects = false
+    }
+
+    func moveDeveloperBloatItemToTrash(_ item: DeveloperBloatItem, in project: DeveloperProject) {
+        let sizeText = ByteCountFormatter.string(fromByteCount: item.sizeBytes, countStyle: .file)
+        guard confirmDestructiveAction(
+            title: "Move \(item.kind.displayName) to Trash?",
+            message: "\(item.path)\n\nThis is a regenerable build/dependency directory (\(sizeText)). It will go to Trash, not be deleted permanently, and \(project.name) can rebuild it (e.g. npm install, cargo build, swift build)."
+        ) else { return }
+        movePathToTrash(item.path, actionTitle: "Moved \(item.kind.displayName) to Trash")
+        developerProjects = developerProjects.map { existing in
+            guard existing.id == project.id else { return existing }
+            return DeveloperProject(
+                path: existing.path,
+                markers: existing.markers,
+                bloatItems: existing.bloatItems.filter { $0.id != item.id },
+                gitStatus: existing.gitStatus
+            )
+        }
+    }
+
+    func checkICloudExposure(for project: DeveloperProject) async {
+        guard !checkingICloudExposureProjectIDs.contains(project.id) else { return }
+        checkingICloudExposureProjectIDs.insert(project.id)
+
+        let scanner = developerProjectScanner
+        let projectURL = URL(fileURLWithPath: project.path)
+        let summary = await Task.detached(priority: .utility) {
+            scanner.iCloudExposure(for: projectURL)
+        }.value
+
+        iCloudExposureByProjectID[project.id] = summary
+        checkingICloudExposureProjectIDs.remove(project.id)
+        lastMessage = summary.mayStallOnAccess
+            ? "\(project.name): \(summary.datalessPlaceholderCount) file(s) not downloaded — access may stall"
+            : "\(project.name): iCloud exposure checked, nothing stalls access"
     }
 
     func saveCurrentFilter() {
