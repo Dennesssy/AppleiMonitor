@@ -51,22 +51,16 @@ This category is crowded, so AppleiMonitor's niche is the combination: usage his
 - Xcode command line tools or Xcode with Swift 5.9 support.
 - Optional: Homebrew and `mas` for Homebrew and Mac App Store update checks.
 
-## Install Beta
+## Install
 
-Install the current Homebrew beta with:
-
-```bash
-brew install --cask jcranokc/tap/app-monitor@beta
-```
-
-Or tap first, then install:
+Install from source by building the app bundle:
 
 ```bash
-brew tap jcranokc/tap
-brew install --cask app-monitor@beta
+git clone https://github.com/Dennesssy/AppleiMonitor.git
+cd AppleiMonitor
+./scripts/build_app.sh debug
+open "build/AppleiMonitor.app"
 ```
-
-The tap lives at [jcranokc/homebrew-tap](https://github.com/jcranokc/homebrew-tap).
 
 ## Build And Run
 
@@ -101,6 +95,40 @@ swift run AppMonitor
 ```
 
 Some macOS app behaviors, including bundle identity, icon resources, menu bar behavior, login item behavior, and permission prompts, are best exercised through the packaged app from `scripts/build_app.sh`.
+
+## Usage
+
+AppleiMonitor runs from the menu bar or the dashboard window. After opening `build/AppleiMonitor.app`, look for its icon in the macOS status bar.
+
+### Menu Bar
+
+Tap the menu bar icon to open the popover. The popover shows the current summary cards for storage, usage, updates, warnings, and developer project bloat. Use it for quick checks without opening the full dashboard.
+
+### Dashboard
+
+Open the dashboard from the menu bar popover or by launching the app directly. The dashboard is organized around the left sidebar and the main detail area.
+
+- **Sidebar**: choose the active section: Overview, Usage, Storage, Warnings, Updates, Uninstall, History, and Settings.
+- **Overview**: see combined status across usage, storage, updates, warnings, and developer project bloat.
+- **Usage**: inspect foreground app usage, daily trends, top apps, and timeline sessions.
+- **Storage**: review app bundle sizes, related support files, caches, containers, logs, and quarantine candidates.
+- **Warnings**: review flagged items such as large files, stale bundles, Gatekeeper issues, and permission-sensitive paths.
+- **Updates**: check Mac App Store apps, Homebrew formulae and casks, Apple software updates, and apps with Sparkle feeds.
+- **Uninstall**: preview what an app would remove, queue items, and send them to Trash.
+- **History**: review past cleanup, restore, and uninstall actions.
+- **Inspector**: select an item in the main view to open the detail inspector on the right, where exact paths, metadata, and actions are available.
+
+### Quarantine and Restore
+
+When cleanup candidates are selected, AppleiMonitor moves them to its quarantine area instead of deleting them immediately. Use History to review quarantined items and restore them if needed.
+
+### Developer Projects
+
+If enabled in Settings, AppleiMonitor scans configured developer project roots for project type, git status, and related bloat. Results appear in the dashboard and can inform storage or cleanup decisions.
+
+### Privacy and Scope
+
+AppleiMonitor is local-first. It stores data under `~/Library/Application Support/AppleiMonitor/` and does not send telemetry. Update checks may reach out to third-party sources or local tools such as Homebrew, `mas`, Apple `softwareupdate`, or configured Sparkle feeds.
 
 ## Packaging And Releasing
 
